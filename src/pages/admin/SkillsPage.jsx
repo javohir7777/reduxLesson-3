@@ -1,6 +1,6 @@
 import { Button, Form, Input, Modal, Space, Table, message } from "antd";
 import { Fragment, useState } from "react";
-import { addSkills } from "../../redux/slices/skillSlice";
+import { addSkill, deleteSkill } from "../../redux/slices/skillSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const SkillsPage = () => {
@@ -23,11 +23,15 @@ const SkillsPage = () => {
 
     {
       title: "Action",
-      render: () => {
+      render: (_, row) => {
         return (
           <Space size="middle">
             <Button type="primary">Edit</Button>
-            <Button danger type="primary">
+            <Button
+              danger
+              type="primary"
+              onClick={() => dispatch(deleteSkill(row.id))}
+            >
               Delete
             </Button>
           </Space>
@@ -47,7 +51,7 @@ const SkillsPage = () => {
   const handleOk = async () => {
     try {
       let value = await form.validateFields();
-      dispatch(addSkills(value));
+      dispatch(addSkill(value));
       closeModal();
     } catch (error) {
       message.error("Error");

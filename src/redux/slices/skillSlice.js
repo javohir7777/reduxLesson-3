@@ -5,7 +5,8 @@ const initialState = {
 };
 
 export const getSkills = createAction("skill/getSkills");
-export const addSkills = createAction("skill/addSkill", ({ name, percent }) => {
+export const deleteSkill = createAction("skill/deleteSkill");
+export const addSkill = createAction("skill/addSkill", ({ name, percent }) => {
   return {
     payload: {
       name,
@@ -17,8 +18,12 @@ export const addSkills = createAction("skill/addSkill", ({ name, percent }) => {
 
 const skillReducer = createReducer(initialState, {
   //   [getSkills]: (state) => {},
-  [addSkills]: (state, { payload }) => {
+  [addSkill]: (state, { payload }) => {
     state.skills.push(payload);
+  },
+  [deleteSkill]: (state, { payload }) => {
+    console.log(payload);
+    state.skills = state.skills.filter((el) => el.id !== payload);
   },
 });
 
