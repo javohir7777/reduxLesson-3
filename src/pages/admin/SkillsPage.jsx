@@ -1,11 +1,14 @@
-import { Button, Form, Input, Modal, Space, Table } from "antd";
+import { Button, Form, Input, Modal, Space, Table, message } from "antd";
 import { Fragment, useState } from "react";
+import { addSkills } from "../../redux/slices/skillSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const SkillsPage = () => {
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
-  const data = [];
+  const { skills } = useSelector((state) => state.skill);
   const columns = [
     {
       title: "Name",
@@ -41,8 +44,14 @@ const SkillsPage = () => {
     setIsModalOpen(false);
   };
 
-  const handleOk = () => {
-    console.log("ok");
+  const handleOk = async () => {
+    try {
+      let value = await form.validateFields();
+      dispatch(addSkills(value));
+      closeModal();
+    } catch (error) {
+      message.error("Error");
+    }
   };
   return (
     <Fragment>
@@ -57,14 +66,14 @@ const SkillsPage = () => {
               alignItems: "center",
             }}
           >
-            <h1>Skills ({data.length})</h1>
+            <h1>Skills ({skills.length})</h1>
             <Button onClick={showModal} type="primary">
               Add skills
             </Button>
           </div>
         )}
         columns={columns}
-        dataSource={data}
+        dataSource={skills}
       />
       <Modal
         title="Category data"
