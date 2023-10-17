@@ -1,14 +1,28 @@
-import { Button, Form, Input, Modal, Space, Table, message } from "antd";
-import { Fragment, useState } from "react";
-import { addSkill, deleteSkill } from "../../redux/slices/skillSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { Button, Form, Input, Modal, Space, Table } from "antd";
+import { Fragment, useEffect } from "react";
+import {
+  addSkill,
+  controlModal,
+  deleteSkill,
+  editSkill,
+  getSkill,
+  getSkills,
+  putSkill,
+  showModal,
+} from "../../redux/slices/skillSlice";
 
 const SkillsPage = () => {
-  const dispatch = useDispatch();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
 
-  const { skills } = useSelector((state) => state.skill);
+  const { skills, isModalOpen, selected, loading, total, btnLoading } =
+    useSelector((state) => state.skill);
+
+  useEffect(() => {
+    dispatch(getSkills());
+  }, [dispatch]);
+
   const columns = [
     {
       title: "Name",
@@ -26,11 +40,27 @@ const SkillsPage = () => {
       render: (_, row) => {
         return (
           <Space size="middle">
-            <Button type="primary">Edit</Button>
+            <Button
+              type="primary"
+              onClick={async () => {
+                await dispatch(editSkill(row._id));
+                await dispatch(getSkills());
+                let { payload } = await dispatch(getSkill(row._id));
+                console.log(payload);
+                form.setFieldsValue(payload);
+              }}
+            >
+              Edit
+            </Button>
             <Button
               danger
               type="primary"
-              onClick={() => dispatch(deleteSkill(row.id))}
+              // loading={loading}
+              onClick={async () => {
+                // await dispatch(deleteSkill(row.id));
+                await dispatch(deleteSkill(row._id));
+                await dispatch(getSkills());
+              }}
             >
               Delete
             </Button>
@@ -40,27 +70,28 @@ const SkillsPage = () => {
     },
   ];
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
   const closeModal = () => {
-    setIsModalOpen(false);
+    dispatch(controlModal());
   };
 
   const handleOk = async () => {
     try {
       let value = await form.validateFields();
-      dispatch(addSkill(value));
+      if (selected === null) {
+        await dispatch(addSkill(value));
+      } else {
+        await dispatch(putSkill({ id: selected, value }));
+      }
       closeModal();
+      await dispatch(getSkills());
     } catch (error) {
-      message.error("Error");
+      console.log(error);
     }
   };
   return (
     <Fragment>
       <Table
-        // loading={loading}
+        loading={loading}
         bordered
         title={() => (
           <div
@@ -70,9 +101,10 @@ const SkillsPage = () => {
               alignItems: "center",
             }}
           >
-            <h1>Skills ({skills.length})</h1>
-            <Button onClick={showModal} type="primary">
-              Add skills
+            <h1>Skills ({total})</h1>
+
+            <Button onClick={() => dispatch(showModal(form))} type="primary">
+              Add skill
             </Button>
           </div>
         )}
@@ -81,10 +113,11 @@ const SkillsPage = () => {
       />
       <Modal
         title="Category data"
+        confirmLoading={btnLoading}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={closeModal}
-        okText={"Add skill"}
+        okText={selected ? "Save skill" : "Add skill"}
       >
         <Form
           form={form}

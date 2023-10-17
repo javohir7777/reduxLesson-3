@@ -5,9 +5,12 @@ import { requies } from "../../server";
 import Cookies from "js-cookie";
 import { TOKEN } from "../../container";
 import { useNavigate } from "react-router-dom";
+import { controlAuthenticated } from "../../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [handleValue, setHandleValue] = useState({
     username: "",
     password: "",
@@ -29,8 +32,8 @@ const Login = () => {
       if (role === "user") {
         console.log("usercha");
       } else if (role === "admin") {
-        console.log("admincha");
         navigate("/dashboard");
+        dispatch(controlAuthenticated(true));
         Cookies.set(TOKEN, token);
       }
     } catch (error) {

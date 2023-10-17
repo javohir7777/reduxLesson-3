@@ -1,47 +1,47 @@
 import { Fragment, useState } from "react";
 import { Button, Form, Input, Modal, Pagination, Space, Table } from "antd";
+import {
+  useAddPortfoliosMutation,
+  useDeletePortfoliosMutation,
+  useGetPortfolioMutation,
+  useGetPortfoliosQuery,
+  useUpdatePortfoliosMutation,
+} from "../../redux/services/portfolioService";
 
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import {
-  useAddUsersMutation,
-  useDeleteUsersMutation,
-  useGetUserMutation,
-  useGetUsersQuery,
-  useUpdateUsersMutation,
-} from "../../redux/users/user";
 
-const UsersPage = () => {
+const Portfolios = () => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
 
-  const { data, isLoading, refetch } = useGetUsersQuery(page);
-  const [addUser] = useAddUsersMutation();
-  const [getUser] = useGetUserMutation();
-  const [updateUser] = useUpdateUsersMutation();
-  const [deleteUser] = useDeleteUsersMutation();
+  const { data, isLoading, refetch } = useGetPortfoliosQuery(page);
+  const [addPortfolio] = useAddPortfoliosMutation();
+  const [getPortfolio] = useGetPortfolioMutation();
+  const [updatePortfolio] = useUpdatePortfoliosMutation();
+  const [deletePortfolio] = useDeletePortfoliosMutation();
 
   const columns = [
     {
-      title: "First Name",
-      dataIndex: "firstName",
-      key: "firstName",
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: "Last Name",
-      dataIndex: "lastName",
-      key: "lastName",
+      title: "Url",
+      dataIndex: "url",
+      key: "url",
+      render: (url) => (
+        <a rel="noreferrer" target="_blank" href={url}>
+          {url}
+        </a>
+      ),
     },
     {
-      title: "Birthday",
-      dataIndex: "birthday",
-      key: "birthday",
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
     },
 
     {
@@ -56,13 +56,13 @@ const UsersPage = () => {
           >
             <EditOutlined
               style={{ fontSize: "25px", color: "#0000FF" }}
-              onClick={() => editUser(row._id)}
+              onClick={() => editPortfolio(row._id)}
             />
 
             <DeleteOutlined
               style={{ fontSize: "25px", color: "#FF0E0E" }}
               onClick={async () => {
-                await deleteUser(row._id);
+                await deletePortfolio(row._id);
                 refetch();
               }}
             />
@@ -85,24 +85,24 @@ const UsersPage = () => {
   const handleOk = async () => {
     try {
       let values = await form.validateFields();
+      values.photo = "6521485e1b06670014733226";
       if (selected === null) {
-        await addUser(values);
+        await addPortfolio(values);
       } else {
-        await updateUser({ id: selected, body: values });
+        await updatePortfolio({ id: selected, body: values });
       }
-      closeModal();
       refetch();
+      closeModal();
     } catch (err) {
       console.log(err);
     }
   };
-  console.log(data);
 
-  async function editUser(id) {
+  async function editPortfolio(id) {
     try {
       setSelected(id);
       setIsModalOpen(true);
-      const { data } = await getUser(id);
+      const { data } = await getPortfolio(id);
       form.setFieldsValue(data);
     } catch (err) {
       console.log(err);
@@ -122,10 +122,10 @@ const UsersPage = () => {
               alignItems: "center",
             }}
           >
-            <h1>Users ({data?.pagination?.total})</h1>
+            <h1>Portfolios ({data?.pagination?.total})</h1>
 
             <Button type="primary" onClick={openModal}>
-              Add user
+              Add portfolio
             </Button>
           </div>
         )}
@@ -145,11 +145,11 @@ const UsersPage = () => {
         open={isModalOpen}
         onOk={handleOk}
         onCancel={closeModal}
-        okText={"Add user"}
+        okText={"Add portfolio"}
       >
         <Form
           form={form}
-          name="user"
+          name="portfolio"
           labelCol={{
             span: 24,
           }}
@@ -162,8 +162,8 @@ const UsersPage = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="First Name"
-            name="firstName"
+            label="Portfolio name"
+            name="name"
             rules={[
               {
                 required: true,
@@ -174,8 +174,8 @@ const UsersPage = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Last Name"
-            name="lastName"
+            label="Portfolio url"
+            name="url"
             rules={[
               {
                 required: true,
@@ -186,20 +186,8 @@ const UsersPage = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Birthday"
-            name="birthday"
-            rules={[
-              {
-                required: true,
-                message: "Please fill!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Address"
-            name="address"
+            label="Description"
+            name="description"
             rules={[
               {
                 required: true,
@@ -215,4 +203,4 @@ const UsersPage = () => {
   );
 };
 
-export default UsersPage;
+export default Portfolios;

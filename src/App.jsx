@@ -1,32 +1,31 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import Login from "./pages/front/Login";
-import NotFoundPage from "./pages/public/NotFoundPage";
 import AdminLayout from "./components/layout/admin";
 import DashboardPage from "./pages/admin/DashboardPage";
 import SkillsPage from "./pages/admin/SkillsPage";
 import UsersPage from "./pages/admin/UsersPage";
+import { useSelector } from "react-redux";
+import Portfolios from "./pages/admin/PortfoliosPage";
 
 function App() {
+  const { isAuthenticated } = useSelector((state) => state.auth);
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/" element={<AdminLayout />}>
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="skills" element={<SkillsPage />} />
-          <Route path="users" element={<UsersPage />} />
-        </Route>
-        {/* <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="blog" element={<BlogPage />} />
-          <Route path="posts" element={<AllPostsPage />} />
-          <Route path="about" element={<AbouteUsPage />} />
-          <Route path="blog/:id" element={<BlogPostPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="category/:id" element={<CategoryPage />} />
-        </Route> */}
-        <Route path="*" element={<NotFoundPage />} />
+        <Route
+          path="/"
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
+        />
+        {isAuthenticated ? (
+          <Route path="/" element={<AdminLayout />}>
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="portfolios" element={<Portfolios/>}/>
+            <Route path="skills" element={<SkillsPage />} />
+            <Route path="users" element={<UsersPage />} />
+          </Route>
+        ) : null}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
