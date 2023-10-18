@@ -87,6 +87,7 @@ const UsersPage = () => {
       let values = await form.validateFields();
       if (selected === null) {
         await addUser(values);
+        console.log(values);
       } else {
         await updateUser({ id: selected, body: values });
       }
